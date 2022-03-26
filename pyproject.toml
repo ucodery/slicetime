@@ -1,0 +1,18 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "slicetime"
+version = "0.0.1"
+authors = [{name = "Jeremiah Paige", email = "ucodery@gmail.com"}]
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["description"]
+
+[project.urls]
+Home = "https://github.com/ucodery/slicetime"
+
+[project.optional-dependencies]
+def = ["flit", "nox"]
+test = ["pytest >= 2.7.3"]
