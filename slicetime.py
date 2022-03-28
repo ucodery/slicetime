@@ -1,40 +1,48 @@
+"""Create time and datetime objects using slice notation"""
 import datetime as dt
 
-def __getitem__(self, key):
-    if isinstance(key, int):
-        hours = key
+__all__ = ["date", "datetime", "time"]
+
+def _slice_to_time(clock):
+    if isinstance(clock, int):
+        hours = clock
         minutes = 0
         seconds = 0
         microseconds = 0
-    elif isinstance(key, slice):
+    elif isinstance(clock, slice):
         # TODO: support __index__
-        if not isinstance(key.start, (int, type(None))) or not isinstance(key.stop, (int, type(None))):
+        if not isinstance(clock.start, (int, type(None))) or not isinstance(clock.stop, (int, type(None))):
             raise TypeError("time slice start and stop must be an integer or None, not "
-                            f"{type(key.start) if not isinstance(key.start, (int, type(None))) else type(key.stop)}")
-        if not isinstance(key.step, (int, float, type(None))):
-            raise TypeError("time slice step must be an integer, float, or None, not {type(key.step)}")
-        hours = key.start if key.start is not None else 0
-        minutes = key.stop if key.stop is not None else 0
-        seconds = key.step if key.step is not None else 0
+                            f"{type(clock.start) if not isinstance(clock.start, (int, type(None))) else type(clock.stop)}")
+        if not isinstance(clock.step, (int, float, type(None))):
+            raise TypeError("time slice step must be an integer, float, or None, not {type(clock.step)}")
+        hours = clock.start if clock.start is not None else 0
+        minutes = clock.stop if clock.stop is not None else 0
+        seconds = clock.step if clock.step is not None else 0
         if isinstance(seconds, float):
             microseconds = round(seconds % 1 * 1000000)
             seconds = int(seconds // 1)
         else:
             microseconds = 0
     else:
-        raise TypeError(f"time indices must be integers or slices, not {type(key)}")
+        raise TypeError(f"time indices must be integers or slices, not {type(clock)}")
+    return dt.time(hours, minutes, seconds, microseconds)
 
-    time = dt.time(hours, minutes, seconds, microseconds)
-
-    return dt.datetime.combine(self, time)
 
 class date(dt.date):
-    pass
-date.__getitem__ = __getitem__
+    def __getitem__(self, clock):
+        time = _slice_to_time(clock)
+        return dt.datetime.combine(self, time)
 
 class datetime(dt.datetime):
-    pass
-datetime.__getitem__ = __getitem__
+    def __getitem__(self, clock):
+        time = _slice_to_time(clock)
+        return self.combine(self, time)
+
+class time(dt.time):
+    def __class_getitem__(cls, clock):
+        return _slice_to_time(clock)
 
 dt.date = date
 dt.datetime = datetime
+dt.time = time
